@@ -147,8 +147,8 @@ class App:
         
         ##read dicts
         sp_dict = {}
-        sp_dict['1'] = pd.read_excel(self.spname.get('1.0', 'end-1c'), sheet_name = '1', header=0, index_col=-1, na_values='.')
-        sp_dict['2'] = pd.read_excel(self.spname.get('1.0', 'end-1c'), sheet_name = '2', header=0, index_col=-1, na_values='.')
+        sp_dict['1'] = pd.read_excel(self.spname.get('1.0', 'end-1c'), sheet_name = '1', header=0, index_col=3, na_values='.') # index_col = -1 old version
+        sp_dict['2'] = pd.read_excel(self.spname.get('1.0', 'end-1c'), sheet_name = '2', header=0, index_col=3, na_values='.')
         
         #read standard dict
         std_dict = {}
