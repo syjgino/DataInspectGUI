@@ -307,6 +307,7 @@ class App:
             IQR = Q3 - Q1
             TICrow.loc[0, 'transition'] = ((TICrow.loc[0, range(0,20)] < (Q1 - 1.5 * IQR)) | (TICrow.loc[0, range(0,20)] > (Q3 + 1.5 * IQR))).sum()
             TICrow.index = ['TIC']
+            TICrow['Species'] = ['TIC']
             
             ##by std
             #Q1 = TICrow.loc[0, range(0,20)].mean() - 1.5*TICrow.loc[0, range(0,20)].std()
