@@ -22,18 +22,18 @@ class App:
     def __init__(self):
         self.root = tk.Tk()
         self.root.title("IntensityViewer")
-        self.dirloc = tk.Text(width=40, height= 2, state = 'disabled')
-        self.dirloc.grid(column=1, row=0, columnspan=1, sticky='nw')
+        self.dirloc = tk.Text(width=30, height= 2, state = 'disabled')
+        self.dirloc.grid(column=1, row=0, columnspan=1, sticky='nw', padx=2)
         self.button = ttk.Button(text='Set Directory', command=lambda: self.set_dir_read())
         self.button.grid(column=0, row=0, sticky='nw')
         
-        self.stdkey = tk.Text(width=40, height= 2, state = 'disabled')
-        self.stdkey.grid(column=1, row=1, columnspan=1, sticky='nw')
+        self.stdkey = tk.Text(width=30, height= 2, state = 'disabled')
+        self.stdkey.grid(column=1, row=1, columnspan=1, sticky='nw',padx=2)
         self.button2 = ttk.Button(text='StandardKey', command=lambda: self.stdkey_read())
         self.button2.grid(column=0, row=1, sticky='nw')
         
-        self.spname = tk.Text(width=40, height= 2, state = 'disabled')
-        self.spname.grid(column=1, row=2, columnspan=1, sticky='nw')
+        self.spname = tk.Text(width=30, height= 2, state = 'disabled')
+        self.spname.grid(column=1, row=2, columnspan=1, sticky='nw',padx=2)
         self.button3 = ttk.Button(text='Spname', command=lambda: self.spname_read())
         self.button3.grid(column=0, row=2, sticky='nw')
         
@@ -41,30 +41,42 @@ class App:
                                   command=lambda: self.readmzml())
         self.button4.grid(column=0, row=3, sticky='nw')
         
-        self.tree = ttk.Treeview(columns=('Outliers','Min','Mean','Max'))
+        self.tree = ttk.Treeview(columns=('Outliers','Min','Mean','Max','Coef.Var'))
         self.tree.heading('#0', text='ID')
         self.tree.heading('Outliers', text='Outliers')
         self.tree.heading('Min', text='Min')
         self.tree.heading('Mean', text='Mean')
         self.tree.heading('Max', text='Max')
-        self.tree.column('#0', width=20, anchor='center')
-        self.tree.column('Outliers', width=20, anchor='center')
-        self.tree.column('Min', width=60, anchor='center')
-        self.tree.column('Mean', width=60, anchor='center')
-        self.tree.column('Max', width=60, anchor='center')
+        self.tree.heading('Coef.Var', text='Coef.Var')
+        self.tree.column('#0', width=50, anchor='center', stretch=False)
+        self.tree.column('Outliers', width=50, anchor='center', stretch=False)
+        self.tree.column('Min', width=50, anchor='center', stretch=False)
+        self.tree.column('Mean', width=50, anchor='center', stretch=False)
+        self.tree.column('Max', width=50, anchor='center', stretch=False)
+        self.tree.column('Coef.Var', width=60, anchor='center', stretch=False)
         
-        self.tree.grid(column=0, row=4, columnspan=2, 
-                       sticky='nwe', pady=5, padx=5)
+        self.tree.grid(column=0, row=4, columnspan=2,
+                       sticky='nwe', pady=3, padx=3)
         self.tree.bind("<Double-1>", self.OnDoubleClick)
-        # Constructing vertical scrollbar 
+
+        # Constructing vertical scrollbar
         # with treeview 
         self.verscrlbar = ttk.Scrollbar(self.root,
                                         orient="vertical", command=self.tree.yview) 
         # config bar
-        self.verscrlbar.grid(column=1, row=4, sticky='nes', pady=5) 
-        self.tree.config(yscrollcommand = self.verscrlbar.set) 
+        self.verscrlbar.grid(column=2, row=4, sticky='nws', pady=3, padx=0)
+        #self.tree.config(yscrollcommand = self.verscrlbar.set)
         #self.verscrlbar.config(command=self.tree.yview)
-        
+
+        # Constructing horizontal scrollbar
+        # with treeview
+        self.horscrlbar = ttk.Scrollbar(self.root,
+                                        orient="horizontal", command=self.tree.xview)
+        # config bar
+        self.horscrlbar.grid(column=0, row=5, columnspan=2, sticky='esw', pady=0, padx=5)
+        self.tree.config(yscrollcommand=self.verscrlbar.set)
+        self.tree.config(xscrollcommand=self.horscrlbar.set)
+
         self.f = tk.Frame()
         self.f.grid(column=3, row=0, rowspan=10, columnspan=10, sticky='nsew')
         #self.f.columnconfigure(10, weight=1)
@@ -79,7 +91,7 @@ class App:
     def OnDoubleClick(self, event):
         item = self.tree.selection()[0]
         print("you clicked on", self.tree.item(item, 'text'))
-        method = self.tree.item(item, 'values')[4]
+        method = self.tree.item(item, 'values')[-1]
         samp = self.tree.item(item, 'text')
         df = self.data[method][samp].copy() #self.data['1']['54']
         df.iloc[:,4:24] = df.iloc[:,4:24].applymap('{:,.5E}'.format) #scientific notation
@@ -317,12 +329,14 @@ class App:
             uid = uuid.uuid4()
             self.tree.insert("", "end", uid, text=i)
             for j in intensity_20_out[i]:
-                self.tree.insert(uid, "end", text=j, 
-                                 values=(intensity_20_out[i][j]['transition']['TIC'], 
-                                         intensity_20_out[i][j].loc['TIC',range(0,20)].min(),
-                                         intensity_20_out[i][j].loc['TIC',range(0,20)].mean(),
-                                         intensity_20_out[i][j].loc['TIC',range(0,20)].max(),
-                                         str(i)))
+                self.tree.insert(uid, "end", text=j,
+                                 values=(intensity_20_out[i][j]['transition']['TIC'], # number of outliers
+                                         intensity_20_out[i][j].loc['TIC', range(0, 20)].min(),
+                                         intensity_20_out[i][j].loc['TIC', range(0, 20)].mean(),
+                                         intensity_20_out[i][j].loc['TIC', range(0, 20)].max(),
+                                         intensity_20_out[i][j].loc['TIC', range(0, 20)].std()/intensity_20_out[i][j].loc['TIC', range(0, 20)].mean(),
+                                         str(i) # method, hidden, used by double click
+                                         ))
 
 
 
