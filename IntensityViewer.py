@@ -73,7 +73,7 @@ class App:
         self.horscrlbar = ttk.Scrollbar(self.root,
                                         orient="horizontal", command=self.tree.xview)
         # config bar
-        self.horscrlbar.grid(column=0, row=5, columnspan=2, sticky='esw', pady=0, padx=5)
+        self.horscrlbar.grid(column=0, row=5, columnspan=2, sticky='enw', pady=0, padx=5)
         self.tree.config(yscrollcommand=self.verscrlbar.set)
         self.tree.config(xscrollcommand=self.horscrlbar.set)
 
