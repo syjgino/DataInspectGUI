@@ -17,11 +17,13 @@ See the License for the specific language governing permissions and
 limitations under the License.
 """
 
+import os
+#os.environ["MODIN_ENGINE"] = "dask"
+import pandas as pd
+#import modin.pandas as pd
 
 import numpy as np
-import pandas as pd
 from pyopenms import *
-import os
 import glob
 import re
 from pyopenms import *
