@@ -165,12 +165,18 @@ class App:
         #    return(sp_dict[method].loc[(pd.Series(sp_dict[method]['Q1'] == row['Q1']) & pd.Series(sp_dict[method]['Q3'] == row['Q3']))].index[0])
 
         ##create all variable
-        all_df_dict = {'1': {}, '2': {}}
+        all_df_dict = {'1': {}, '2': {}, '3':{}}
         # out_df2 = pd.DataFrame()
-        out_df2 = {'1': pd.DataFrame(), '2': pd.DataFrame()}
+        out_df2 = {'1': pd.DataFrame(), 
+                   '2': pd.DataFrame(),
+                   '3': pd.DataFrame()}
         # out_df2_con = pd.DataFrame()
-        out_df2_con = {'1': pd.DataFrame(), '2': pd.DataFrame()}
-        out_df2_intensity = {'1': pd.DataFrame(), '2': pd.DataFrame()}
+        out_df2_con = {'1': pd.DataFrame(), 
+                       '2': pd.DataFrame(),
+                       '3': pd.DataFrame()}
+        out_df2_intensity = {'1': pd.DataFrame(), 
+                             '2': pd.DataFrame(),
+                             '3': pd.DataFrame()}
         # sp_df3 = {'A':0}
 
         ##read dicts
@@ -179,6 +185,13 @@ class App:
                                      na_values='.')  # index_col = -1 old version
         sp_dict['2'] = pd.read_excel(self.spname.get('1.0', 'end-1c'), sheet_name='2', header=0, index_col=3,
                                      na_values='.')
+        try:
+            sp_dict['3'] = pd.read_excel(self.spname.get('1.0', 'end-1c'), sheet_name='3', header=0, index_col=3,
+                                         na_values='.')
+        except:
+            pass
+            
+            
 
         # read standard dict
         std_dict = {}
@@ -186,15 +199,29 @@ class App:
                                       na_values='.').to_dict()
         std_dict['2'] = pd.read_excel(self.stdkey.get('1.0', 'end-1c'), sheet_name='Method2', header=0, index_col=0,
                                       na_values='.').to_dict()
+        try:
+            std_dict['3'] = pd.read_excel(self.stdkey.get('1.0', 'end-1c'), sheet_name='Method3', header=0, index_col=0,
+                                          na_values='.').to_dict()
+        except:
+            pass
+        
 
         # 20 intensity data save to dict
-        intensity_20_out = {'1': {}, '2': {}}
+        intensity_20_out = {'1': {}, '2': {}, '3':{}}
         
         # report 0s for all species, all samples. sp as rows and samples as columns
-        zero_report = {'1': pd.DataFrame(list(sp_dict['1'].index),
-                                              columns = ['Species']),
-                       '2': pd.DataFrame(list(sp_dict['2'].index),
-                                              columns = ['Species'])}
+        try:
+            zero_report = {'1': pd.DataFrame(list(sp_dict['1'].index),
+                                                  columns = ['Species']),
+                           '2': pd.DataFrame(list(sp_dict['2'].index),
+                                                  columns = ['Species']),
+                           '3': pd.DataFrame(list(sp_dict['3'].index),
+                                                  columns = ['Species'])}
+        except:
+            zero_report = {'1': pd.DataFrame(list(sp_dict['1'].index),
+                                                  columns = ['Species']),
+                           '2': pd.DataFrame(list(sp_dict['2'].index),
+                                                  columns = ['Species'])}
         
         ##loop start
         for sample in range(0, len(list_of_files)):
@@ -360,6 +387,11 @@ class App:
         master = pd.ExcelWriter('zeros report.xlsx')
         zero_report['1'].to_excel(master, '1', merge_cells =True)
         zero_report['2'].to_excel(master, '2', merge_cells =True)
+        try:
+            zero_report['3'].to_excel(master, '3', merge_cells =True)
+        except:
+            pass
+        
         master.save()
         
         for i in intensity_20_out:
