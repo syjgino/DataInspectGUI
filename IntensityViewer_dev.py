@@ -238,10 +238,17 @@ class App:
             sp_df = pd.DataFrame({'NativeID': []})
             sp_serie = list()
             for each_chrom in all_chroms:
-                sp_serie.append(each_chrom.getNativeID().decode("utf-8"))
+                NatID = each_chrom.getNativeID()
+                if type(NatID) is bytes:
+                    NatID = NatID.decode("utf-8")
+                sp_serie.append(NatID)
 
-            sp_df['NativeID'] = pd.Series(sp_serie[1:])
-
+            #sp_df['NativeID'] = pd.Series(sp_serie[1:])
+            
+            # datarows are rows not tic/bic
+            datarows = pd.Series([x for x in list(map(lambda x: len(x), sp_serie))]) > 20
+            sp_df['NativeID'] = np.array(sp_serie)[np.flatnonzero(datarows)]
+            
             sp_df2 = sp_df['NativeID'].apply(lambda x: pd.Series(x.split()))
 
             if any(sp_df2[0] == '-'):
@@ -259,6 +266,12 @@ class App:
 
             sp_df2.columns = sp_df2.loc[0].str.extract(r'(.*)=', expand=False)
             sp_df2 = sp_df2.apply(lambda x: x.str.extract(r'=(.*)$', expand=False))
+            
+            #update 20240717
+            #new MSconvert added extra info in NativeID, exclude those columns here
+            sp_df2 = sp_df2[['Q1', 'Q3', 
+                             'sample', 'period', 'experiment', 'transition']]
+            
             sp_df2 = sp_df2.astype(float)
 
             ##get intensity
@@ -283,6 +296,7 @@ class App:
             sp_df2 = sp_df2.merge(intensity_df2, left_index=True, right_index=True)
 
             ##change experiment1 to negative, add species name
+            print(sp_df)
             if max(sp_df2['experiment']) == 2:
                 sp_df2['Q1'][sp_df2['experiment'] == 1] = -sp_df2['Q1'][sp_df2['experiment'] == 1]
             sp_df2['Species'] = sp_dict[method].index
